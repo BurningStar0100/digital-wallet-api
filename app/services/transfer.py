@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm.session import Session
 
 from app.models.models import User, Wallet
-from app.schemas.transfer import TransferRequest
+from app.schemas.transfer import TransferRequest, TransferResponse
   
 def createTransferById(transfer_data: TransferRequest, db: Session):
     sender_user = db.query(User).filter(User.id == transfer_data.sender_user_id).first()
@@ -18,25 +18,44 @@ def createTransferById(transfer_data: TransferRequest, db: Session):
             sender_user.balance = sender_user.balance - transfer_data.amount
             sender_user.update_at = datetime.now()
             db.commit()
-            db.refresh(user)
-            transaction = Wallet(
-                user_id = user_id,
-                transaction_type = "DEBIT",
-                amount = user_data.amount,
-                description = user_data.description,
-                created_at = datetime.now()
-            )
-            db.add(transaction)
+            db.refresh(sender_user)
+            recipent_user.balance = recipent_user.balance + transfer_data.amount
+            recipent_user.update_at = datetime.now()
             db.commit()
-            db.refresh(transaction)
-            data = UpdateBalanceResponse(
-                transaction_id= transaction.id,
-                user_id = user_id,
-                amount = user_data.amount,
-                new_balance= user.balance,
-                transaction_type= transaction.transaction_type
+            db.refresh(recipent_user)
+            transaction_sender = Wallet(
+                user_id = transfer_data.sender_user_id,
+                transaction_type = "TRANSFER_OUT",
+                amount = transfer_data.amount,
+                description = transfer_data.description,
+                created_at = datetime.now(),
+                reference_user_id = transfer_data.recipent_user_id
+
             )
+            db.add(transaction_sender)
+            db.commit()
+            db.refresh(transaction_sender)
+             # Create recipient transaction record
+            transaction_recipient = Wallet(
+                user_id=transfer_data.recipent_user_id,
+                transaction_type="TRANSFER_IN",
+                amount=transfer_data.amount,
+                description=transfer_data.description,
+                created_at=datetime.now(),
+                reference_user_id=transfer_data.sender_user_id
+            )
+            db.add(transaction_recipient)
+            db.commit()
+            db.refresh(transaction_recipient)
+            data = TransferResponse(
+                    
+                    sender_transaction_id=transaction_sender.id,
+                    recipient_transaction_id=transaction_recipient.id,
+                    amount=transfer_data.amount,
+                    sender_new_balance=sender_user.balance,
+                    recipient_new_balance=recipient_user.balance
+                )
             return data
         else:
             raise HTTPException(status_code=400,
-                                detail=f"Insufficient balance of {user.balance}")
+                                detail=f"Insufficient balance of {sender_user.balance} required amount {transfer_data.amount - sender_user.balance}")

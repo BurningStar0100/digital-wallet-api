@@ -8,7 +8,6 @@ class TransferRequest(BaseModel):
     description : str
 
 class TransferResponse(BaseModel):
-    transfer_id: int
     sender_transaction_id: int
     recipient_transaction_id: int
     amount: float
