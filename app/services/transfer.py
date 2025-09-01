@@ -42,7 +42,8 @@ def createTransferById(transfer_data: TransferRequest, db: Session):
                 amount=transfer_data.amount,
                 description=transfer_data.description,
                 created_at=datetime.now(),
-                reference_user_id=transfer_data.sender_user_id
+                reference_user_id=transfer_data.sender_user_id,
+                reference_transaction_id = transaction_sender.id
             )
             db.add(transaction_recipient)
             db.commit()
