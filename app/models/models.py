@@ -20,7 +20,7 @@ class User(Base):
     balance: Mapped[float] = mapped_column(insert_default=0.00) # balance DECIMAL(10,2) DEFAULT 0.00,
     created_at = mapped_column(DateTime(),server_default=func.now()) # created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_at = mapped_column(DateTime(),server_default=func.now()) # update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    wallets: Mapped[List["Wallet"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    
 
 class Wallet(Base):
     __tablename__ = "wallet"
@@ -31,4 +31,6 @@ class Wallet(Base):
     amount: Mapped[float] #amount DECIMAL(10,2) NOT NULL,
     description: Mapped[str]
     created_at = mapped_column(DateTime(),server_default=func.now()) # created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    user: Mapped["User"] = relationship(back_populates="wallets")
+    reference_transaction_id: Mapped[int] = mapped_column(ForeignKey("wallet.id", ondelete="SET NULL"), nullable=True) #reference_transaction_id INTEGER REFERENCES wallet(id) ON DELETE SET NULL,
+    reference_user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.id", ondelete="SET NULL"), nullable=True) #reference_user_id INTEGER REFERENCES user_profile(id) ON DELETE SET NULL,
+    

@@ -4,6 +4,7 @@ from fastapi.responses import RedirectResponse
 from app.db.db import create_tables
 from app.routes.user import user_router
 from app.routes.wallet import wallet_router
+from app.routes.transaction import transaction_router
 
 app = FastAPI()
 
@@ -17,4 +18,4 @@ def read_root():
 
 app.include_router(prefix= "/users", router = user_router)
 app.include_router(prefix= "/wallet", router = wallet_router)
-
+app.include_router(prefix= "/transactions", router = transaction_router)
