@@ -47,13 +47,12 @@ def createTransferById(transfer_data: TransferRequest, db: Session):
             db.add(transaction_recipient)
             db.commit()
             db.refresh(transaction_recipient)
-            data = TransferResponse(
-                    
+            data = TransferResponse( 
                     sender_transaction_id=transaction_sender.id,
                     recipient_transaction_id=transaction_recipient.id,
                     amount=transfer_data.amount,
                     sender_new_balance=sender_user.balance,
-                    recipient_new_balance=recipient_user.balance
+                    recipient_new_balance=recipent_user.balance
                 )
             return data
         else:
