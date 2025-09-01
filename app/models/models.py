@@ -17,7 +17,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(100),unique=True) # email VARCHAR(100) UNIQUE NOT NULL,
     password: Mapped[str] = mapped_column(String(255)) #password VARCHAR(255) NOT NULL,
     phone_number: Mapped[Optional[str]] = mapped_column(String(15),nullable=True) #phone_number VARCHAR(15),
-    balance: Mapped[Optional[float]] = mapped_column(insert_default=0.00) # balance DECIMAL(10,2) DEFAULT 0.00,
+    balance: Mapped[float] = mapped_column(insert_default=0.00) # balance DECIMAL(10,2) DEFAULT 0.00,
     created_at = mapped_column(DateTime(),server_default=func.now()) # created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_at = mapped_column(DateTime(),server_default=func.now()) # update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     wallets: Mapped[List["Wallet"]] = relationship(back_populates="user", cascade="all, delete-orphan")
@@ -29,5 +29,6 @@ class Wallet(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("user_profile.id", ondelete="CASCADE")) #user_id INTEGER REFERENCES user_profile(id) ON DELETE CASCADE,
     transaction_type: Mapped[str] = mapped_column(String(50)) #transaction_type VARCHAR(50) NOT NULL,
     amount: Mapped[float] #amount DECIMAL(10,2) NOT NULL,
+    description: Mapped[str]
     created_at = mapped_column(DateTime(),server_default=func.now()) # created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user: Mapped["User"] = relationship(back_populates="wallets")
